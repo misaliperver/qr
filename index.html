@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Kurtköy Paşam</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #08100d;
+  --bg2:        #0d1812;
+  --bg3:        #111f16;
+  --gold:       #b8973a;
+  --gold-l:     #d4af5c;
+  --gold-ll:    #e8cc82;
+  --gold-dim:   rgba(184,151,58,0.18);
+  --gold-line:  rgba(184,151,58,0.28);
+  --cream:      #f5edd8;
+  --cream-dim:  rgba(245,237,216,0.5);
+  --cream-faint:rgba(245,237,216,0.18);
+  --white:      #faf7f0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Raleway', sans-serif;
+  background: var(--bg);
+  color: var(--cream);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── NOISE TEXTURE overlay ─── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 999;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px;
+}
+
+/* ══════════════════════ SPLASH SCREEN ══════════════════════ */
+#splash {
+  position: fixed; inset: 0; z-index: 500;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0;
+  transition: opacity 0.9s ease, visibility 0.9s ease;
+}
+#splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.splash-glow {
+  position: absolute;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(184,151,58,0.12) 0%, transparent 65%);
+  border-radius: 50%;
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+@keyframes pulse-glow {
+  0%,100% { transform: scale(1); opacity: 0.7; }
+  50%      { transform: scale(1.15); opacity: 1; }
+}
+
+.splash-top-line {
+  width: 1px; height: 80px;
+  background: linear-gradient(to bottom, transparent, var(--gold));
+  margin-bottom: 2rem;
+  animation: grow-down 1s ease both;
+}
+@keyframes grow-down {
+  from { transform: scaleY(0); transform-origin: top; }
+  to   { transform: scaleY(1); transform-origin: top; }
+}
+
+.splash-emblem {
+  position: relative;
+  width: 90px; height: 90px;
+  margin-bottom: 2rem;
+  animation: fade-in 1s 0.3s ease both;
+}
+.splash-emblem svg { width: 100%; height: 100%; }
+
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.splash-name {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--cream);
+  text-align: center;
+  animation: fade-in 1s 0.5s ease both;
+  line-height: 1.3;
+}
+.splash-name span { color: var(--gold); }
+
+.splash-sub {
+  font-size: 0.7rem; letter-spacing: 0.3em;
+  text-transform: uppercase; color: var(--cream-dim);
+  margin-top: 0.6rem; text-align: center;
+  animation: fade-in 1s 0.7s ease both;
+}
+
+.splash-bottom-line {
+  width: 1px; height: 80px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  margin-top: 2rem;
+  animation: grow-down 1s 0.4s ease both;
+}
+
+.splash-enter {
+  margin-top: 2.5rem;
+  font-size: 0.65rem; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--gold);
+  cursor: pointer; border: none; background: none;
+  font-family: 'Raleway', sans-serif;
+  animation: fade-in 1s 1.2s ease both;
+  padding: 0.5rem 1.5rem;
+  border-bottom: 1px solid var(--gold-line);
+  transition: color 0.2s, border-color 0.2s;
+}
+.splash-enter:hover { color: var(--gold-ll); border-color: var(--gold); }
+
+/* ══════════════════════ HEADER ══════════════════════ */
+header {
+  position: relative;
+  padding: 3.5rem 1.5rem 2rem;
+  text-align: center;
+  overflow: hidden;
+}
+header::before {
+  content: '';
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 300px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(184,151,58,0.13) 0%, transparent 70%);
+}
+
+.header-rule {
+  display: flex; align-items: center; justify-content: center; gap: 1rem;
+  margin-bottom: 1.8rem;
+}
+.rule-line {
+  height: 1px; flex: 1; max-width: 100px;
+}
+.rule-line-left  { background: linear-gradient(to right, transparent, var(--gold-line)); }
+.rule-line-right { background: linear-gradient(to left,  transparent, var(--gold-line)); }
+
+.rule-center {
+  display: flex; align-items: center; gap: 6px;
+}
+.rule-dot { width: 4px; height: 4px; background: var(--gold); border-radius: 50%; }
+.rule-cross {
+  width: 12px; height: 12px; position: relative;
+}
+.rule-cross::before, .rule-cross::after {
+  content: ''; position: absolute;
+  background: var(--gold);
+}
+.rule-cross::before { width: 100%; height: 1px; top: 50%; transform: translateY(-50%); }
+.rule-cross::after  { width: 1px; height: 100%; left: 50%; transform: translateX(-50%); }
+
+.header-kicker {
+  font-size: 0.6rem; letter-spacing: 0.35em;
+  text-transform: uppercase; color: var(--gold);
+  font-weight: 500; margin-bottom: 0.8rem;
+}
+
+.header-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.8rem, 7vw, 3rem);
+  font-weight: 700; line-height: 1.1;
+  letter-spacing: 0.08em;
+  color: var(--white);
+  margin-bottom: 0.3rem;
+}
+.header-title .gold { color: var(--gold-l); }
+
+.header-subtitle {
+  font-family: 'IM Fell English', serif;
+  font-style: italic; font-size: 0.95rem;
+  color: var(--cream-dim); letter-spacing: 0.05em;
+  margin-bottom: 1.5rem;
+}
+
+.header-meta {
+  display: flex; justify-content: center;
+  flex-wrap: wrap; gap: 0.4rem 1.2rem;
+  font-size: 0.7rem; color: var(--cream-dim);
+  letter-spacing: 0.04em;
+}
+.header-meta span::before { margin-right: 0.3rem; }
+
+/* ══════════════════════ TABS ══════════════════════ */
+.tabs-outer {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(8,16,13,0.92);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border-top: 1px solid var(--gold-line);
+  border-bottom: 1px solid var(--gold-line);
+}
+
+.tabs-inner {
+  display: flex;
+  overflow-x: auto; scrollbar-width: none;
+  max-width: 680px; margin: 0 auto;
+  padding: 0 0.5rem;
+  gap: 0;
+}
+.tabs-inner::-webkit-scrollbar { display: none; }
+
+.tab {
+  flex-shrink: 0;
+  background: none; border: none;
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--cream-dim);
+  padding: 1rem 1.1rem;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.3s;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.tab::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+.tab:hover { color: var(--gold-ll); }
+.tab.active { color: var(--gold); }
+.tab.active::after { transform: scaleX(1); }
+
+.tab-emoji { font-size: 0.9rem; }
+
+/* ══════════════════════ MAIN ══════════════════════ */
+main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 1rem 7rem;
+}
+
+/* ══════════════════════ CATEGORY ══════════════════════ */
+.cat-section { display: none; }
+.cat-section.active {
+  display: block;
+  animation: section-in 0.45s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes section-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cat-hero {
+  position: relative;
+  padding: 2.5rem 0 1.5rem;
+  display: flex; align-items: center; gap: 1.5rem;
+}
+.cat-hero::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(to right, var(--gold-line) 0%, transparent 100%);
+}
+
+.cat-numeral {
+  font-family: 'Cinzel', serif;
+  font-size: 4rem; font-weight: 700;
+  color: var(--gold-dim);
+  line-height: 1; flex-shrink: 0;
+  letter-spacing: -0.02em;
+  border-right: 1px solid var(--gold-line);
+  padding-right: 1.2rem;
+  margin-right: 0.3rem;
+}
+
+.cat-text {}
+.cat-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem; font-weight: 700;
+  letter-spacing: 0.08em; color: var(--cream);
+  margin-bottom: 0.2rem;
+}
+.cat-note {
+  font-size: 0.72rem; color: var(--gold);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ══════════════════════ SUBCATEGORY ══════════════════════ */
+.subcat-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem; letter-spacing: 0.3em;
+  text-transform: uppercase; color: var(--gold);
+  font-weight: 600;
+  padding: 1.5rem 0 0.8rem;
+  display: flex; align-items: center; gap: 0.8rem;
+}
+.subcat-label::before, .subcat-label::after {
+  content: ''; display: block; height: 1px;
+  background: var(--gold-line); flex: 1;
+}
+.subcat-label::before { max-width: 20px; }
+
+/* ══════════════════════ ITEMS ══════════════════════ */
+.item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto auto;
+  gap: 0 1.2rem;
+  padding: 1.2rem 0;
+  border-bottom: 1px solid rgba(184,151,58,0.07);
+  position: relative;
+  cursor: default;
+  transition: background 0.2s;
+}
+.item:last-child { border-bottom: none; }
+
+.item-name {
+  font-family: 'IM Fell English', serif;
+  font-size: 1.05rem;
+  color: var(--white); line-height: 1.2;
+  grid-column: 1; grid-row: 1;
+}
+.item-name em { font-style: italic; color: var(--gold-ll); }
+
+.item-desc {
+  font-size: 0.75rem; font-weight: 300;
+  color: var(--cream-dim); line-height: 1.7;
+  grid-column: 1; grid-row: 2;
+  margin-top: 0.25rem;
+  letter-spacing: 0.01em;
+}
+
+.item-badges {
+  grid-column: 1; grid-row: 3;
+  display: flex; gap: 0.3rem; flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+.badge {
+  font-size: 0.58rem; letter-spacing: 0.08em;
+  font-weight: 600; padding: 0.15rem 0.55rem;
+  border-radius: 2px; text-transform: uppercase;
+}
+.badge-sig  { background: rgba(184,151,58,0.15); color: var(--gold-l); border: 1px solid rgba(184,151,58,0.25); }
+.badge-veg  { background: rgba(80,160,80,0.12);  color: #8fd68f; border: 1px solid rgba(80,160,80,0.2); }
+.badge-hot  { background: rgba(200,70,50,0.12);  color: #f09090; border: 1px solid rgba(200,70,50,0.2); }
+
+.item-price-wrap {
+  grid-column: 2; grid-row: 1 / 4;
+  display: flex; flex-direction: column;
+  align-items: flex-end; justify-content: flex-start;
+  padding-top: 0.1rem;
+}
+.item-price {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem; font-weight: 600;
+  color: var(--gold);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.item-unit {
+  font-size: 0.6rem; color: var(--cream-faint);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-top: 0.15rem; text-align: right;
+}
+
+/* ══════════════════════ FOOTER BAR ══════════════════════ */
+.foot {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: rgba(8,16,13,0.96);
+  border-top: 1px solid var(--gold-line);
+  backdrop-filter: blur(20px);
+  padding: 0.7rem 1.5rem;
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.65rem; letter-spacing: 0.1em;
+  color: var(--cream-dim); text-transform: uppercase;
+}
+.foot-logo {
+  font-family: 'Cinzel', serif;
+  color: var(--gold); font-size: 0.7rem; letter-spacing: 0.12em;
+}
+.foot-sep { color: var(--gold-line); }
+
+/* ══════════════════════ SCROLL REVEAL ══════════════════════ */
+.item {
+  opacity: 0; transform: translateY(10px);
+  animation: item-in 0.5s ease forwards;
+}
+@keyframes item-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* stagger handled by JS */
+
+@media (max-width: 420px) {
+  .cat-numeral { font-size: 3rem; }
+  .header-title { font-size: 1.6rem; }
+  .tab { padding: 0.9rem 0.8rem; font-size: 0.58rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ SPLASH ══════════ -->
+<div id="splash">
+  <div class="splash-glow"></div>
+  <div class="splash-top-line"></div>
+
+  <div class="splash-emblem">
+    <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Outer ring -->
+      <circle cx="45" cy="45" r="42" stroke="#b8973a" stroke-width="0.8" stroke-dasharray="3 4"/>
+      <!-- Inner ring -->
+      <circle cx="45" cy="45" r="34" stroke="#b8973a" stroke-width="0.4" opacity="0.5"/>
+      <!-- Star / compass ornament -->
+      <path d="M45 11 L47.5 42.5 L45 45 L42.5 42.5 Z" fill="#b8973a" opacity="0.9"/>
+      <path d="M45 79 L47.5 47.5 L45 45 L42.5 47.5 Z" fill="#b8973a" opacity="0.9"/>
+      <path d="M11 45 L42.5 47.5 L45 45 L42.5 42.5 Z" fill="#b8973a" opacity="0.9"/>
+      <path d="M79 45 L47.5 42.5 L45 45 L47.5 47.5 Z" fill="#b8973a" opacity="0.9"/>
+      <!-- Diagonals -->
+      <path d="M22 22 L43 43 L45 45 L43 43 Z" fill="#b8973a" opacity="0.45"/>
+      <path d="M68 22 L47 43 L45 45 L47 43 Z" fill="#b8973a" opacity="0.45"/>
+      <path d="M22 68 L43 47 L45 45 L43 47 Z" fill="#b8973a" opacity="0.45"/>
+      <path d="M68 68 L47 47 L45 45 L47 47 Z" fill="#b8973a" opacity="0.45"/>
+      <!-- Center diamond -->
+      <rect x="41.5" y="41.5" width="7" height="7" transform="rotate(45 45 45)" fill="#b8973a"/>
+      <rect x="43" y="43" width="4" height="4" transform="rotate(45 45 45)" fill="#08100d"/>
+    </svg>
+  </div>
+
+  <div class="splash-name">KURTKÖY<br><span>PAŞAM</span></div>
+  <div class="splash-sub">Ev Yemekleri · Kahvaltı Salonu</div>
+  <div class="splash-bottom-line"></div>
+  <button class="splash-enter" onclick="enterMenu()">Menüyü Görüntüle</button>
+</div>
+
+<!-- ══════════ HEADER ══════════ -->
+<header>
+  <div class="header-rule">
+    <div class="rule-line rule-line-left"></div>
+    <div class="rule-center">
+      <div class="rule-dot"></div>
+      <div class="rule-cross"></div>
+      <div class="rule-dot"></div>
+    </div>
+    <div class="rule-line rule-line-right"></div>
+  </div>
+
+  <div class="header-kicker">Est. Kurtköy · Pendik · İstanbul</div>
+  <div class="header-title">KURTKÖY <span class="gold">PAŞAM</span></div>
+  <div class="header-subtitle">Ev Yemekleri ve Kahvaltı Salonu</div>
+
+  <div class="header-meta">
+    <span>📍 Kurtköy, Pendik</span>
+    <span>⏰ 08:00 – 22:00</span>
+    <span>☎ 0216 000 00 00</span>
+  </div>
+
+  <div class="header-rule" style="margin-top:1.8rem;margin-bottom:0">
+    <div class="rule-line rule-line-left"></div>
+    <div class="rule-center">
+      <div class="rule-dot"></div>
+      <div class="rule-cross"></div>
+      <div class="rule-dot"></div>
+    </div>
+    <div class="rule-line rule-line-right"></div>
+  </div>
+</header>
+
+<!-- ══════════ TABS ══════════ -->
+<div class="tabs-outer">
+  <div class="tabs-inner">
+    <button class="tab active" data-cat="kahvalti" onclick="switchCat(this)">
+      <span class="tab-emoji">🍳</span> Kahvaltı
+    </button>
+    <button class="tab" data-cat="ev" onclick="switchCat(this)">
+      <span class="tab-emoji">🍲</span> Ev Yemekleri
+    </button>
+    <button class="tab" data-cat="corba" onclick="switchCat(this)">
+      <span class="tab-emoji">🥣</span> Çorbalar
+    </button>
+    <button class="tab" data-cat="icecek" onclick="switchCat(this)">
+      <span class="tab-emoji">☕</span> İçecekler
+    </button>
+  </div>
+</div>
+
+<main>
+
+  <!-- ════════════ KAHVALTI ════════════ -->
+  <section class="cat-section active" id="kahvalti">
+    <div class="cat-hero">
+      <div class="cat-numeral">I</div>
+      <div class="cat-text">
+        <div class="cat-name">KAHVALTI TABLALARI</div>
+        <div class="cat-note">Her sabah taze · 08:00 – 13:00</div>
+      </div>
+    </div>
+
+    <div class="subcat-label">Serpme & Özel Tablalar</div>
+
+    <div class="item">
+      <div class="item-name">Paşam Serpme Kahvaltısı</div>
+      <div class="item-desc">Beyaz peynir, kaşar, çökelek, siyah zeytin, domates, salatalık, tereyağı, bal, kaymak, reçel çeşitleri, haşlama yumurta, simit — 2 kişilik hazırlanır</div>
+      <div class="item-badges"><span class="badge badge-sig">✦ Şefin Önerisi</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺420</div><div class="item-unit">2 kişi</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Köy Kahvaltı Tabağı</div>
+      <div class="item-desc">Köy peyniri, taze yumurta (sahanda ya da haşlama), domates, sivri biber, zeytin, tereyağı, taze ekmek</div>
+      <div class="item-badges"><span class="badge badge-veg">🌿 Vejeteryan</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺185</div><div class="item-unit">1 kişi</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Bal & Kaymak Tabağı</div>
+      <div class="item-desc">Çiçek balı, tam yağlı ev kaymağı, taze tereyağı, tost ekmeği</div>
+      <div class="item-badges"><span class="badge badge-veg">🌿 Vejeteryan</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺130</div></div>
+    </div>
+
+    <div class="subcat-label">Sıcak Lezzetler</div>
+
+    <div class="item">
+      <div class="item-name">Menemen</div>
+      <div class="item-desc">Taze domates, sivri biber, yumurta — sadece veya sucuklu tercih edilebilir</div>
+      <div class="item-badges">
+        <span class="badge badge-sig">✦ Şefin Önerisi</span>
+        <span class="badge badge-hot">🌶 Acı İsteğe Göre</span>
+      </div>
+      <div class="item-price-wrap"><div class="item-price">₺110</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Sucuklu Yumurta</div>
+      <div class="item-desc">Ev yapımı sucuk, tava sahanda yumurta, taze ekmek</div>
+      <div class="item-price-wrap"><div class="item-price">₺125</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Tereyağlı Sahanda Yumurta</div>
+      <div class="item-desc">Gerçek köy tereyağında — az pişmiş, orta ya da tam pişmiş tercihinize göre</div>
+      <div class="item-badges"><span class="badge badge-veg">🌿 Vejeteryan</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺85</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">El Açması Gözleme</div>
+      <div class="item-desc">Peynirli, patatesli veya kıymalı — günlük açılan hamur</div>
+      <div class="item-badges"><span class="badge badge-sig">✦ Şefin Önerisi</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺95</div></div>
+    </div>
+  </section>
+
+  <!-- ════════════ EV YEMEKLERİ ════════════ -->
+  <section class="cat-section" id="ev">
+    <div class="cat-hero">
+      <div class="cat-numeral">II</div>
+      <div class="cat-text">
+        <div class="cat-name">EV YEMEKLERİ</div>
+        <div class="cat-note">Günlük pişirilir · 11:00 – 22:00</div>
+      </div>
+    </div>
+
+    <div class="subcat-label">Günün Yemekleri</div>
+
+    <div class="item">
+      <div class="item-name">Kuru Fasulye</div>
+      <div class="item-desc">Sabahtan yavaş ateşte pişirilmiş, pirinç pilavı ve turşu ile birlikte servis edilir</div>
+      <div class="item-badges">
+        <span class="badge badge-sig">✦ Şefin Önerisi</span>
+        <span class="badge badge-veg">🌿 Vejeteryan</span>
+      </div>
+      <div class="item-price-wrap"><div class="item-price">₺145</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Nohutlu Etli Güveç</div>
+      <div class="item-desc">Dana kuşbaşı, nohut, patates, mevsim sebzeleri — kil güveçte fırında pişirilir</div>
+      <div class="item-badges"><span class="badge badge-sig">✦ Şefin Önerisi</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺210</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">İzmir Köfte</div>
+      <div class="item-desc">Taze domates sosu, patates dilimleri, yeşil biber ile fırın tepsisinde</div>
+      <div class="item-badges"><span class="badge badge-hot">🌶 Hafif Acılı</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺195</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Zeytinyağlı Taze Fasulye</div>
+      <div class="item-desc">Taze domates, sarımsak, ev zeytinyağı ile yavaş pişirilmiş — soğuk servis</div>
+      <div class="item-badges"><span class="badge badge-veg">🌿 Vejeteryan</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺130</div></div>
+    </div>
+
+    <div class="subcat-label">Izgaralar</div>
+
+    <div class="item">
+      <div class="item-name">Izgara Tavuk</div>
+      <div class="item-desc">Ev marinasyonu, tereyağlı pilav ve mevsim salatası eşliğinde</div>
+      <div class="item-price-wrap"><div class="item-price">₺175</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">El Yapımı Köfte Tabağı</div>
+      <div class="item-desc">Dana köfte, tereyağlı pirinç pilavı, közlenmiş domates ve biber</div>
+      <div class="item-badges"><span class="badge badge-sig">✦ Şefin Önerisi</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺200</div></div>
+    </div>
+
+    <div class="subcat-label">Garnitür & Ekler</div>
+
+    <div class="item">
+      <div class="item-name">Tereyağlı Pirinç Pilavı</div>
+      <div class="item-desc">Baldo pirinç, gerçek tereyağı</div>
+      <div class="item-badges"><span class="badge badge-veg">🌿 Vejeteryan</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺55</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Mevsim Salatası</div>
+      <div class="item-desc">Taze domates, salatalık, maydanoz, taze soğan — limon zeytinyağı sosuyla</div>
+      <div class="item-badges"><span class="badge badge-veg">🌿 Vejeteryan</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺65</div></div>
+    </div>
+  </section>
+
+  <!-- ════════════ ÇORBALAR ════════════ -->
+  <section class="cat-section" id="corba">
+    <div class="cat-hero">
+      <div class="cat-numeral">III</div>
+      <div class="cat-text">
+        <div class="cat-name">ÇORBALAR</div>
+        <div class="cat-note">Günlük hazırlanır · Tükenebilir</div>
+      </div>
+    </div>
+
+    <div class="subcat-label">Ana Çorbalar</div>
+
+    <div class="item">
+      <div class="item-name">Kırmızı Mercimek Çorbası</div>
+      <div class="item-desc">Tereyağı, pul biber ve taze sıkılmış limon ile — klasik tarif</div>
+      <div class="item-badges">
+        <span class="badge badge-sig">✦ Şefin Önerisi</span>
+        <span class="badge badge-veg">🌿 Vejeteryan</span>
+      </div>
+      <div class="item-price-wrap"><div class="item-price">₺80</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Domates Çorbası</div>
+      <div class="item-desc">Taze domates, hafif krema, fesleğen, çıtır ekmek kıtırı ile servis</div>
+      <div class="item-badges"><span class="badge badge-veg">🌿 Vejeteryan</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺85</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">İşkembe Çorbası</div>
+      <div class="item-desc">Sarımsaklı sirke ve pul biber eşliğinde — geleneksel ev tarifi</div>
+      <div class="item-badges"><span class="badge badge-sig">✦ Şefin Önerisi</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺90</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Ezogelin Çorbası</div>
+      <div class="item-desc">Kırmızı mercimek, ince bulgur, domates, kurutulmuş nane, tereyağı</div>
+      <div class="item-badges"><span class="badge badge-veg">🌿 Vejeteryan</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺80</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Yayla Çorbası</div>
+      <div class="item-desc">Yoğurt, pirinç, taze nane, tereyağı nefisi — soğuk havalarda vazgeçilmez</div>
+      <div class="item-badges"><span class="badge badge-veg">🌿 Vejeteryan</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺85</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Günün Sebze Çorbası</div>
+      <div class="item-desc">Mutfaktaki en taze sebzelerle, her gün farklı</div>
+      <div class="item-badges"><span class="badge badge-veg">🌿 Vejeteryan</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺80</div></div>
+    </div>
+  </section>
+
+  <!-- ════════════ İÇECEKLER ════════════ -->
+  <section class="cat-section" id="icecek">
+    <div class="cat-hero">
+      <div class="cat-numeral">IV</div>
+      <div class="cat-text">
+        <div class="cat-name">İÇECEKLER</div>
+        <div class="cat-note">Sıcak · Soğuk · Geleneksel</div>
+      </div>
+    </div>
+
+    <div class="subcat-label">Sıcak İçecekler</div>
+
+    <div class="item">
+      <div class="item-name">Türk Kahvesi</div>
+      <div class="item-desc">Sade, az şekerli veya orta şekerli — lokum eşliğinde</div>
+      <div class="item-badges"><span class="badge badge-sig">✦ Şefin Önerisi</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺70</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Çay</div>
+      <div class="item-desc">Demlik çay, Rize usulü ince belli bardakta</div>
+      <div class="item-price-wrap"><div class="item-price">₺30</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Bitki & Meyve Çayları</div>
+      <div class="item-desc">Ihlamur, nane-limon, ada çayı, papatya — sezonuna göre değişir</div>
+      <div class="item-badges"><span class="badge badge-veg">🌿 Doğal</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺55</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Sahlep</div>
+      <div class="item-desc">Kış özel, tarçın ve hindistan cevizi ile sıcak servis</div>
+      <div class="item-price-wrap"><div class="item-price">₺75</div></div>
+    </div>
+
+    <div class="subcat-label">Soğuk İçecekler</div>
+
+    <div class="item">
+      <div class="item-name">Taze Limonata</div>
+      <div class="item-desc">Günlük taze sıkım, nane yapraklı veya sade</div>
+      <div class="item-badges"><span class="badge badge-sig">✦ Şefin Önerisi</span></div>
+      <div class="item-price-wrap"><div class="item-price">₺75</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Ev Ayranı</div>
+      <div class="item-desc">El yapımı, köpüklü, tuzlu veya tuzsuz</div>
+      <div class="item-price-wrap"><div class="item-price">₺40</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Meyve Suyu</div>
+      <div class="item-desc">Şeftali, vişne, portakal, elma</div>
+      <div class="item-price-wrap"><div class="item-price">₺45</div></div>
+    </div>
+
+    <div class="item">
+      <div class="item-name">Su</div>
+      <div class="item-desc">0.5 litre şişe</div>
+      <div class="item-price-wrap"><div class="item-price">₺20</div></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══════════ FOOTER ══════════ -->
+<div class="foot">
+  <span class="foot-logo">KURTKÖY PAŞAM</span>
+  <span class="foot-sep">·</span>
+  <span>Fiyatlara KDV dahildir</span>
+  <span class="foot-sep">·</span>
+  <span>Afiyet Olsun</span>
+</div>
+
+<script>
+  // ── Splash
+  function enterMenu() {
+    document.getElementById('splash').classList.add('hidden');
+  }
+  // Auto-dismiss splash after 3.5s if not tapped
+  setTimeout(() => {
+    const s = document.getElementById('splash');
+    if (!s.classList.contains('hidden')) s.classList.add('hidden');
+  }, 3500);
+
+  // ── Tab switching
+  function switchCat(btn) {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.cat-section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    const sec = document.getElementById(btn.dataset.cat);
+    sec.classList.add('active');
+    btn.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+    // re-trigger item animations
+    sec.querySelectorAll('.item').forEach((el, i) => {
+      el.style.animationDelay = (i * 0.055) + 's';
+      el.style.animationName = 'none';
+      requestAnimationFrame(() => { el.style.animationName = ''; });
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Initial item stagger
+  document.querySelectorAll('#kahvalti .item').forEach((el, i) => {
+    el.style.animationDelay = (i * 0.07) + 's';
+  });
+</script>
+</body>
+</html>
